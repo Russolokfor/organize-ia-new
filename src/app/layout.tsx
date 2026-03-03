@@ -5,7 +5,7 @@ import UserMenu from "@/components/UserMenu";
 const NavItem = ({ href, label }: { href: string; label: string }) => (
   <Link
     href={href}
-    className="px-3 py-2 rounded-lg hover:bg-zinc-900 active:bg-zinc-800 transition border border-transparent hover:border-zinc-800"
+    className="px-3 py-2 rounded-lg hover:bg-zinc-900 active:bg-zinc-800 transition border border-transparent hover:border-zinc-800 text-sm"
   >
     {label}
   </Link>
@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             <div className="flex items-center gap-3">
-              <nav className="flex gap-1 text-sm">
+              <nav className="flex gap-1">
                 <NavItem href="/organization" label="Organização" />
                 <NavItem href="/routine" label="Rotina" />
                 <NavItem href="/performance" label="Desempenho" />

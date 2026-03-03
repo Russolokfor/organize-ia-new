@@ -1,10 +1,10 @@
 import AuthGuard from "@/components/AuthGuard";
-import TodayClient from "./TodayClient";
+import OrganizationClient from "@/app/organization/OrganizationClient";
 
 export default function Home() {
   return (
     <AuthGuard>
-      <TodayClient />
+      <OrganizationClient />
     </AuthGuard>
   );
 }

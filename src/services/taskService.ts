@@ -27,12 +27,10 @@ export const taskService = {
 
     let q = supabase.from("tasks").select("*").eq("user_id", userId);
 
-    // status
     if (filters.status && filters.status !== "all") {
       q = q.eq("status", filters.status);
     }
 
-    // scope/prazo
     const t = todayISO();
 
     if (filters.scope === "today") {
@@ -57,10 +55,10 @@ export const taskService = {
       q = q.gte("due_date", t).lte("due_date", t7);
     }
 
-    // ordenação
-    q = q.order("status", { ascending: true })
-         .order("due_date", { ascending: true, nullsFirst: false })
-         .order("created_at", { ascending: false });
+    q = q
+      .order("status", { ascending: true })
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false });
 
     const { data, error } = await q;
     if (error) throw error;
@@ -75,6 +73,9 @@ export const taskService = {
     status?: TaskStatus;
     priority?: number | null;
     duration_min?: number | null;
+
+    pinned_today?: boolean;
+    routine_order?: number | null;
   }): Promise<void> {
     const userId = await this.getUserId();
 
@@ -86,8 +87,10 @@ export const taskService = {
       status: payload.status ?? "planned",
       priority: payload.priority ?? 3,
       duration_min: payload.duration_min ?? 30,
-      pinned_today: false,
-      routine_order: null,
+
+      pinned_today: payload.pinned_today ?? false,
+      routine_order: payload.routine_order ?? null,
+
       completed_at: null,
       updated_at: new Date().toISOString(),
     });
@@ -129,5 +132,9 @@ export const taskService = {
 
   async setPinnedToday(id: string, pinned: boolean): Promise<void> {
     await this.update(id, { pinned_today: pinned } as any);
+  },
+
+  async setRoutineOrder(id: string, routine_order: number | null): Promise<void> {
+    await this.update(id, { routine_order } as any);
   },
 };

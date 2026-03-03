@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { taskService, type TaskFilters } from "@/services/taskService";
 import type { Task } from "@/types/task";
 
-type StatusFilter = "all" | "inbox" | "planned" | "doing" | "done";
+type StatusFilter = "all" | "planned" | "doing" | "done";
 type ScopeFilter = "all" | "today" | "next7" | "overdue" | "no_due_date";
 
 function isOverdue(t: Task) {
@@ -24,16 +24,12 @@ export default function OrganizationClient() {
   const [status, setStatus] = useState<StatusFilter>("all");
   const [scope, setScope] = useState<ScopeFilter>("all");
 
-  // criar tarefa
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState<string>("");
   const [creating, setCreating] = useState(false);
 
   const filters: TaskFilters = useMemo(() => {
-    return {
-      status,
-      scope,
-    };
+    return { status, scope };
   }, [status, scope]);
 
   async function load() {
@@ -109,11 +105,10 @@ export default function OrganizationClient() {
       <div className="border border-zinc-800 rounded-2xl p-6 shadow-sm bg-zinc-900/30">
         <h1 className="text-lg font-semibold">Organização</h1>
         <p className="text-sm text-zinc-400 mt-1">
-          Aqui você gerencia todas as suas tarefas (criar, filtrar, concluir e enviar para a Rotina).
+          Painel geral: crie, filtre, conclua e envie tarefas para a Rotina.
         </p>
       </div>
 
-      {/* Criar tarefa */}
       <form onSubmit={createTask} className="border border-zinc-800 rounded-2xl p-6 bg-zinc-900/30 grid gap-3">
         <div className="grid gap-2">
           <label className="text-sm text-zinc-300">Nova tarefa</label>
@@ -143,7 +138,6 @@ export default function OrganizationClient() {
         </button>
       </form>
 
-      {/* filtros */}
       <div className="border border-zinc-800 rounded-2xl p-6 bg-zinc-900/30 grid gap-3">
         <div className="flex flex-wrap gap-3 items-end">
           <div className="grid gap-2">
@@ -157,7 +151,6 @@ export default function OrganizationClient() {
               <option value="planned">Planejadas</option>
               <option value="doing">Em andamento</option>
               <option value="done">Concluídas</option>
-              <option value="inbox">Inbox</option>
             </select>
           </div>
 
@@ -178,19 +171,13 @@ export default function OrganizationClient() {
         </div>
       </div>
 
-      {/* lista */}
       <div className="border border-zinc-800 rounded-2xl p-6 bg-zinc-900/30">
         <h2 className="font-semibold">Tarefas</h2>
-        <p className="text-sm text-zinc-400 mt-1">
-          Dica: use “Rotina” para trabalhar o dia. Aqui é o painel geral.
-        </p>
 
         {loading ? (
           <p className="text-sm text-zinc-400 mt-4">Carregando...</p>
         ) : items.length === 0 ? (
-          <p className="text-sm text-zinc-400 mt-4">
-            Nenhuma tarefa encontrada. Crie a primeira acima.
-          </p>
+          <p className="text-sm text-zinc-400 mt-4">Nenhuma tarefa encontrada.</p>
         ) : (
           <div className="mt-4 grid gap-2">
             {items.map((t) => (
