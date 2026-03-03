@@ -1,142 +1,120 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import EnergyBadge from "@/components/ui/EnergyBadge";
+import { motion } from "framer-motion";
 
-type Energy = "high" | "medium" | "low";
+type Props = {
+  status?: "inbox" | "planned" | "done" | string;
+  refreshKey?: number;
+};
 
-type TaskRow = {
+type Task = {
   id: string;
   title: string;
   status: string;
   priority: number | null;
   duration_min: number | null;
-  energy: Energy;
+  energy: string | null;
   created_at: string;
 };
 
-type Props = {
-  refreshKey?: number;
-  status?: string; // default: "inbox"
-};
-
-function energyBadge(e: Energy) {
-  if (e === "high") return "Alta";
-  if (e === "low") return "Baixa";
-  return "Média";
-}
-
-export default function TaskList({ refreshKey = 0, status = "inbox" }: Props) {
-  const [tasks, setTasks] = useState<TaskRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-
-  const ordered = useMemo(() => {
-    return [...tasks].sort((a, b) => {
-      const pa = a.priority ?? 999;
-      const pb = b.priority ?? 999;
-      if (pa !== pb) return pa - pb;
-      return b.created_at.localeCompare(a.created_at);
-    });
-  }, [tasks]);
-
-  async function load() {
-    setErr(null);
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("id,title,status,priority,duration_min,energy,created_at")
-        .eq("status", status)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setTasks((data ?? []) as TaskRow[]);
-    } catch (e: any) {
-      setErr(e?.message ?? "Erro ao carregar tarefas.");
-    } finally {
-      setLoading(false);
-    }
-  }
+export default function TaskList({ status = "inbox", refreshKey = 0 }: Props) {
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshKey, status]);
+    let cancelled = false;
 
-  async function markDone(id: string) {
-    setErr(null);
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    const { error } = await supabase.from("tasks").update({ status: "done" }).eq("id", id);
-    if (error) {
-      setErr(error.message);
-      load();
+    async function load() {
+      setLoading(true);
+      setErrorMsg(null);
+
+      const sessionRes = await supabase.auth.getSession();
+      const user = sessionRes.data.session?.user;
+
+      if (!user) {
+        if (!cancelled) {
+          setTasks([]);
+          setLoading(false);
+        }
+        return;
+      }
+
+      const res = await supabase
+        .from("tasks")
+        .select("id,title,status,priority,duration_min,energy,created_at")
+        .eq("user_id", user.id)
+        .eq("status", status)
+        .order("priority", { ascending: true })
+        .order("created_at", { ascending: false });
+
+      if (res.error) {
+        if (!cancelled) {
+          setErrorMsg(res.error.message);
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        setTasks((res.data ?? []) as Task[]);
+        setLoading(false);
+      }
     }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [status, refreshKey]);
+
+  if (loading) return <div className="text-sm text-slate-400">Carregando…</div>;
+
+  if (errorMsg) {
+    return (
+      <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+        Erro: <span className="text-slate-400">{errorMsg}</span>
+      </div>
+    );
   }
 
-  async function remove(id: string) {
-    setErr(null);
-    const prev = tasks;
-    setTasks((p) => p.filter((t) => t.id !== id));
-
-    const { error } = await supabase.from("tasks").delete().eq("id", id);
-    if (error) {
-      setErr(error.message);
-      setTasks(prev);
-    }
+  if (tasks.length === 0) {
+    return <div className="text-sm text-slate-400">Sem tarefas aqui.</div>;
   }
 
   return (
-    <div className="space-y-3">
-      {err ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {err}
-        </div>
-      ) : null}
-
-      {loading ? (
-        <div className="text-sm text-zinc-600">Carregando...</div>
-      ) : ordered.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-zinc-300 p-4 text-sm text-zinc-600">
-          Nenhuma tarefa no Inbox.
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {ordered.map((t) => (
-            <div key={t.id} className="flex items-center justify-between gap-3 rounded-xl border border-zinc-200 p-3">
-              <div className="min-w-0">
-                <div className="truncate text-sm font-medium text-zinc-900">{t.title}</div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zinc-600">
-                  <span className="rounded-md border border-zinc-200 px-2 py-0.5">
-                    {t.duration_min ?? 30} min
-                  </span>
-                  <span className="rounded-md border border-zinc-200 px-2 py-0.5">
-                    P{t.priority ?? 3}
-                  </span>
-                  <span className="rounded-md border border-zinc-200 px-2 py-0.5">
-                    Energia: {energyBadge(t.energy)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex shrink-0 items-center gap-2">
-                <button
-                  className="rounded-lg bg-zinc-900 px-3 py-2 text-xs font-medium text-white"
-                  onClick={() => markDone(t.id)}
-                >
-                  Concluir
-                </button>
-                <button
-                  className="rounded-lg border border-zinc-300 px-3 py-2 text-xs font-medium text-zinc-900 hover:bg-zinc-50"
-                  onClick={() => remove(t.id)}
-                >
-                  Excluir
-                </button>
-              </div>
+    <div className="space-y-2">
+      {tasks.map((t, idx) => (
+        <motion.div
+          key={t.id}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: Math.min(idx * 0.03, 0.25), duration: 0.25 }}
+          className="
+            group flex items-start justify-between gap-4
+            rounded-2xl border border-white/10 bg-white/4
+            px-4 py-3
+            hover:bg-white/6 hover:border-white/20
+            transition
+          "
+        >
+          <div className="min-w-0">
+            <div className="text-sm font-medium text-slate-100 truncate">
+              {t.title}
             </div>
-          ))}
-        </div>
-      )}
+            <div className="mt-1 text-xs text-slate-400">
+              {t.duration_min ?? "—"} min • prioridade {t.priority ?? "—"}
+            </div>
+          </div>
+
+          <div className="shrink-0">
+            <EnergyBadge value={t.energy} />
+          </div>
+        </motion.div>
+      ))}
     </div>
   );
 }

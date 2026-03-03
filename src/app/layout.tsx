@@ -5,7 +5,7 @@ import UserMenu from "@/components/UserMenu";
 const NavItem = ({ href, label }: { href: string; label: string }) => (
   <Link
     href={href}
-    className="px-3 py-2 rounded-lg hover:bg-zinc-100 active:bg-zinc-200 transition"
+    className="px-3 py-2 rounded-lg hover:bg-zinc-900 active:bg-zinc-800 transition border border-transparent hover:border-zinc-800"
   >
     {label}
   </Link>
@@ -20,15 +20,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="flex flex-col">
               <span className="text-xl font-semibold">Organize.ia</span>
               <span className="text-sm text-zinc-500">
-                Rotina + tarefas organizadas com IA
+                Organização • Rotina • Desempenho
               </span>
             </div>
 
             <div className="flex items-center gap-3">
               <nav className="flex gap-1 text-sm">
-                <NavItem href="/" label="Hoje" />
-                <NavItem href="/inbox" label="Inbox" />
+                <NavItem href="/organization" label="Organização" />
                 <NavItem href="/routine" label="Rotina" />
+                <NavItem href="/performance" label="Desempenho" />
               </nav>
 
               <UserMenu />
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="mt-6">{children}</main>
 
           <footer className="mt-10 text-xs text-zinc-500">
-            MVP — Next.js + Supabase + Vercel
+            MVP gratuito — Next.js + Supabase
           </footer>
         </div>
       </body>
