@@ -1,10 +1,5 @@
-import AuthGuard from "@/components/AuthGuard";
-import OrganizationClient from "@/app/organization/OrganizationClient";
+import DashboardClient from "@/app/dashboard/DashboardClient";
 
 export default function Home() {
-  return (
-    <AuthGuard>
-      <OrganizationClient />
-    </AuthGuard>
-  );
+  return <DashboardClient />;
 }

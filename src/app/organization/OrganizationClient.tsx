@@ -3,53 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { taskService, type TaskFilters } from "@/services/taskService";
 import type { Task } from "@/types/task";
+import { todayISO } from "@/lib/date";
+import { badgeForTask, statusLabel } from "@/lib/taskUi";
 
 type StatusFilter = "all" | "planned" | "doing" | "done";
 type ScopeFilter = "all" | "today" | "next7" | "overdue" | "no_due_date";
-
-function todayISO(): string {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function isOverdue(t: Task) {
-  if (!t.due_date) return false;
-  if (t.status === "done") return false;
-  const tdy = todayISO();
-  return t.due_date < tdy;
-}
-
-function statusLabel(s: Task["status"]) {
-  if (s === "planned") return "Planejada";
-  if (s === "doing") return "Em andamento";
-  return "Concluída";
-}
-
-function badgeForTask(t: Task) {
-  if (t.status === "done") {
-    return {
-      text: "Concluída",
-      className:
-        "bg-emerald-500/15 text-emerald-300 border border-emerald-500/25",
-    };
-  }
-  if (isOverdue(t)) {
-    return {
-      text: "Atrasada",
-      className: "bg-red-500/15 text-red-300 border border-red-500/25",
-    };
-  }
-  if (t.pinned_today) {
-    return {
-      text: "Na Rotina",
-      className: "bg-blue-500/15 text-blue-300 border border-blue-500/25",
-    };
-  }
-  return null;
-}
 
 export default function OrganizationClient() {
   const [loading, setLoading] = useState(true);
@@ -74,7 +32,9 @@ export default function OrganizationClient() {
     const today = items.filter(
       (t) => (t.due_date === tdy || t.pinned_today) && t.status !== "done"
     );
-    const overdue = items.filter((t) => t.due_date && t.due_date < tdy && t.status !== "done");
+    const overdue = items.filter(
+      (t) => t.due_date && t.due_date < tdy && t.status !== "done"
+    );
 
     return {
       active: active.length,
@@ -249,9 +209,7 @@ export default function OrganizationClient() {
         {/* FILTERS */}
         <div className="lg:col-span-2 rounded-3xl border border-zinc-800 bg-zinc-900/30 p-6">
           <h2 className="font-semibold">Filtros</h2>
-          <p className="text-sm text-zinc-400 mt-1">
-            Encontre rápido o que importa agora.
-          </p>
+          <p className="text-sm text-zinc-400 mt-1">Encontre rápido o que importa agora.</p>
 
           <div className="mt-4 grid gap-3">
             <div className="grid gap-2">
@@ -285,7 +243,9 @@ export default function OrganizationClient() {
 
             <div className="text-xs text-zinc-500">
               Total exibido:{" "}
-              <span className="text-zinc-300 font-medium">{loading ? "..." : items.length}</span>
+              <span className="text-zinc-300 font-medium">
+                {loading ? "..." : items.length}
+              </span>
             </div>
           </div>
         </div>

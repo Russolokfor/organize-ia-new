@@ -1,18 +1,29 @@
+// src/services/taskService.ts
 import { supabase } from "@/lib/supabaseClient";
+import { addDaysISO, todayISO } from "@/lib/date";
 import type { Task, TaskStatus } from "@/types/task";
-
-function todayISO(): string {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
 
 export type TaskFilters = {
   status?: TaskStatus | "all";
   scope?: "all" | "today" | "next7" | "overdue" | "no_due_date";
 };
+
+// Só permite atualizar campos que fazem sentido editar pelo app.
+// Evita "as any" e evita atualizar id/user_id sem querer.
+export type TaskPatch = Partial<
+  Pick<
+    Task,
+    | "title"
+    | "notes"
+    | "status"
+    | "priority"
+    | "duration_min"
+    | "due_date"
+    | "completed_at"
+    | "pinned_today"
+    | "routine_order"
+  >
+>;
 
 export const taskService = {
   async getUserId(): Promise<string> {
@@ -46,12 +57,7 @@ export const taskService = {
     }
 
     if (filters.scope === "next7") {
-      const d = new Date();
-      d.setDate(d.getDate() + 7);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-      const t7 = `${yyyy}-${mm}-${dd}`;
+      const t7 = addDaysISO(7);
       q = q.gte("due_date", t).lte("due_date", t7);
     }
 
@@ -73,7 +79,6 @@ export const taskService = {
     status?: TaskStatus;
     priority?: number | null;
     duration_min?: number | null;
-
     pinned_today?: boolean;
     routine_order?: number | null;
   }): Promise<void> {
@@ -87,10 +92,8 @@ export const taskService = {
       status: payload.status ?? "planned",
       priority: payload.priority ?? 3,
       duration_min: payload.duration_min ?? 30,
-
       pinned_today: payload.pinned_today ?? false,
       routine_order: payload.routine_order ?? null,
-
       completed_at: null,
       updated_at: new Date().toISOString(),
     });
@@ -98,7 +101,7 @@ export const taskService = {
     if (error) throw error;
   },
 
-  async update(id: string, patch: Partial<Task>): Promise<void> {
+  async update(id: string, patch: TaskPatch): Promise<void> {
     const userId = await this.getUserId();
 
     const { error } = await supabase
@@ -124,17 +127,23 @@ export const taskService = {
 
   async toggleDone(id: string, done: boolean): Promise<void> {
     if (done) {
-      await this.update(id, { status: "done", completed_at: new Date().toISOString() } as any);
+      await this.update(id, {
+        status: "done",
+        completed_at: new Date().toISOString(),
+      });
     } else {
-      await this.update(id, { status: "planned", completed_at: null } as any);
+      await this.update(id, {
+        status: "planned",
+        completed_at: null,
+      });
     }
   },
 
   async setPinnedToday(id: string, pinned: boolean): Promise<void> {
-    await this.update(id, { pinned_today: pinned } as any);
+    await this.update(id, { pinned_today: pinned });
   },
 
   async setRoutineOrder(id: string, routine_order: number | null): Promise<void> {
-    await this.update(id, { routine_order } as any);
+    await this.update(id, { routine_order });
   },
 };

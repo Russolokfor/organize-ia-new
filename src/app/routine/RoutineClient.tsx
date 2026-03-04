@@ -3,24 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { taskService } from "@/services/taskService";
 import type { Task } from "@/types/task";
-
-function todayISO(): string {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function isTodayTask(t: Task, tdy: string) {
-  return t.due_date === tdy || t.pinned_today;
-}
-
-function statusLabel(s: Task["status"]) {
-  if (s === "planned") return "Planejada";
-  if (s === "doing") return "Em andamento";
-  return "Concluída";
-}
+import { todayISO } from "@/lib/date";
+import { isTodayTask, statusLabel } from "@/lib/taskUi";
 
 export default function RoutineClient() {
   const [loading, setLoading] = useState(true);

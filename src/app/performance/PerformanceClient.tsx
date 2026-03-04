@@ -3,25 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { taskService } from "@/services/taskService";
 import type { Task } from "@/types/task";
+import { todayISO, daysAgoISO } from "@/lib/date";
 
 type Range = 7 | 30;
-
-function todayISO(): string {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function daysAgoISO(days: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() - days);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
 
 export default function PerformanceClient() {
   const [range, setRange] = useState<Range>(7);
@@ -64,7 +48,9 @@ export default function PerformanceClient() {
       return day >= start && day <= t;
     });
 
-    const pctDone = totalInRange.length === 0 ? 0 : (completedInRange.length / totalInRange.length) * 100;
+    const pctDone =
+      totalInRange.length === 0 ? 0 : (completedInRange.length / totalInRange.length) * 100;
+
     const pctOverdue = active.length === 0 ? 0 : (overdue.length / active.length) * 100;
 
     return {
@@ -72,7 +58,9 @@ export default function PerformanceClient() {
       totalInRange: totalInRange.length,
       pctDone,
       pctOverdue,
-      overdueList: overdue.sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? "")).slice(0, 10),
+      overdueList: overdue
+        .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""))
+        .slice(0, 10),
     };
   }, [tasks, range]);
 
@@ -98,7 +86,9 @@ export default function PerformanceClient() {
         <button
           onClick={() => setRange(7)}
           className={`px-3 py-2 rounded-xl border text-sm transition ${
-            range === 7 ? "bg-zinc-100 text-zinc-950 border-zinc-100" : "border-zinc-700 hover:bg-zinc-900"
+            range === 7
+              ? "bg-zinc-100 text-zinc-950 border-zinc-100"
+              : "border-zinc-700 hover:bg-zinc-900"
           }`}
         >
           Últimos 7 dias
@@ -106,7 +96,9 @@ export default function PerformanceClient() {
         <button
           onClick={() => setRange(30)}
           className={`px-3 py-2 rounded-xl border text-sm transition ${
-            range === 30 ? "bg-zinc-100 text-zinc-950 border-zinc-100" : "border-zinc-700 hover:bg-zinc-900"
+            range === 30
+              ? "bg-zinc-100 text-zinc-950 border-zinc-100"
+              : "border-zinc-700 hover:bg-zinc-900"
           }`}
         >
           Últimos 30 dias
@@ -121,7 +113,9 @@ export default function PerformanceClient() {
             <div className="border border-zinc-800 rounded-2xl p-6 bg-zinc-900/30">
               <p className="text-sm text-zinc-400">Concluídas ({range}d)</p>
               <p className="text-3xl font-semibold mt-2">{stats.completedInRange}</p>
-              <p className="text-xs text-zinc-500 mt-2">Base: {stats.totalInRange} criadas no período</p>
+              <p className="text-xs text-zinc-500 mt-2">
+                Base: {stats.totalInRange} criadas no período
+              </p>
             </div>
 
             <div className="border border-zinc-800 rounded-2xl p-6 bg-zinc-900/30">
@@ -148,7 +142,10 @@ export default function PerformanceClient() {
             ) : (
               <div className="mt-4 grid gap-2">
                 {stats.overdueList.map((t) => (
-                  <div key={t.id} className="flex items-center justify-between gap-3 border border-zinc-800 rounded-2xl p-4 bg-zinc-950/40">
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between gap-3 border border-zinc-800 rounded-2xl p-4 bg-zinc-950/40"
+                  >
                     <div>
                       <div className="font-medium">{t.title}</div>
                       <div className="text-xs text-zinc-400">Prazo: {t.due_date}</div>
