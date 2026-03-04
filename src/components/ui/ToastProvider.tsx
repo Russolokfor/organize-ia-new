@@ -48,8 +48,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
 
-      {/* Toast stack */}
-      <div className="fixed right-4 top-4 z-[9999] flex w-[92vw] max-w-[380px] flex-col gap-3">
+      {/* Toast stack (SEM overflow horizontal) */}
+      <div
+        className={cn(
+          "fixed top-4 z-[9999] flex flex-col gap-3",
+          // Mobile: ocupa a largura disponível com margem dos dois lados
+          "left-4 right-4",
+          // Desktop: volta a ficar no canto direito com largura fixa
+          "sm:left-auto sm:right-4 sm:w-[380px]"
+        )}
+      >
         {items.map((t) => {
           const variantStyles =
             t.variant === "success"
@@ -83,12 +91,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <div className="relative p-4">
                 <div className="flex items-start gap-3">
                   <div className={cn("mt-1 h-2.5 w-2.5 rounded-full", dot)} />
-                  <div className="flex-1">
-                    <div className="text-sm font-semibold text-zinc-100">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold text-zinc-100 break-words">
                       {t.title}
                     </div>
                     {t.description ? (
-                      <div className="mt-1 text-xs text-zinc-400">
+                      <div className="mt-1 text-xs text-zinc-400 break-words">
                         {t.description}
                       </div>
                     ) : null}
@@ -98,7 +106,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                     onClick={() =>
                       setItems((prev) => prev.filter((x) => x.id !== t.id))
                     }
-                    className="text-zinc-400 hover:text-zinc-200 transition text-sm"
+                    className="shrink-0 text-zinc-400 hover:text-zinc-200 transition text-sm"
                     aria-label="Fechar"
                   >
                     ✕
