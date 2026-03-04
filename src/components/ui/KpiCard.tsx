@@ -1,32 +1,43 @@
+"use client";
+
 import React from "react";
 
-export default function KpiCard(props: {
-  label: string;
+function cn(...classes: Array<string | false | undefined | null>) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export default function KpiCard({
+  title,
+  value,
+  subtitle,
+  rightBadge,
+}: {
+  title: string;
   value: string | number;
-  hint?: string;
-  accent?: "violet" | "blue" | "emerald" | "red" | "zinc";
+  subtitle?: string;
+  rightBadge?: string;
 }) {
-  const accent = props.accent ?? "violet";
-
-  const accentClass =
-    accent === "violet"
-      ? "from-violet-500/20 to-transparent"
-      : accent === "blue"
-      ? "from-blue-500/18 to-transparent"
-      : accent === "emerald"
-      ? "from-emerald-500/18 to-transparent"
-      : accent === "red"
-      ? "from-red-500/18 to-transparent"
-      : "from-zinc-500/10 to-transparent";
-
   return (
-    <div className="panel p-5 relative overflow-hidden">
-      <div className={`pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full bg-gradient-to-br ${accentClass}`} />
-      <div className="text-xs uppercase tracking-widest text-zinc-500">{props.label}</div>
-      <div className="mt-2 text-3xl font-semibold tracking-tight text-zinc-100">
-        {props.value}
+    <div className={cn("panel p-5", "min-w-0")}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[11px] uppercase tracking-widest text-muted2">
+            {title}
+          </div>
+          <div className="mt-2 text-3xl sm:text-4xl font-semibold text-zinc-100">
+            {value}
+          </div>
+          {subtitle ? (
+            <div className="mt-2 text-sm text-muted">{subtitle}</div>
+          ) : null}
+        </div>
+
+        {rightBadge ? (
+          <div className="shrink-0 rounded-2xl border border-violet-500/25 bg-violet-500/10 px-3 py-2 text-xs text-violet-200">
+            {rightBadge}
+          </div>
+        ) : null}
       </div>
-      {props.hint && <div className="mt-2 text-sm text-zinc-400">{props.hint}</div>}
     </div>
   );
 }

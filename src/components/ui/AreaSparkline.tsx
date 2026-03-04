@@ -1,46 +1,78 @@
+"use client";
+
 import React from "react";
 
-export default function AreaSparkline({ values }: { values: number[] }) {
-  const w = 220;
-  const h = 64;
-  const pad = 6;
+type Point = { x: number; y: number };
 
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values, 0);
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
 
-  const norm = (v: number) => {
-    if (max === min) return h / 2;
-    const t = (v - min) / (max - min);
-    return h - pad - t * (h - pad * 2);
-  };
+export default function AreaSparkline({
+  values,
+  heightClass = "h-44 sm:h-56",
+}: {
+  values: number[];
+  heightClass?: string;
+}) {
+  const w = 1000;
+  const h = 260;
+  const padX = 24;
+  const padY = 18;
 
-  const step = (w - pad * 2) / Math.max(values.length - 1, 1);
+  const safe = values?.length ? values : [0, 0, 0, 0, 0];
 
-  const points = values.map((v, i) => {
-    const x = pad + i * step;
-    const y = norm(v);
+  const minV = Math.min(...safe);
+  const maxV = Math.max(...safe);
+  const range = maxV - minV || 1;
+
+  const points: Point[] = safe.map((v, i) => {
+    const t = safe.length === 1 ? 0 : i / (safe.length - 1);
+    const x = padX + t * (w - padX * 2);
+    const yn = (v - minV) / range;
+    const y = padY + (1 - yn) * (h - padY * 2);
     return { x, y };
   });
 
-  const dLine =
-    "M " + points.map((p) => `${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" L ");
+  const line = `M ${points.map((p) => `${p.x} ${p.y}`).join(" L ")}`;
+  const area = `${line} L ${w - padX} ${h - padY} L ${padX} ${h - padY} Z`;
 
-  const dArea =
-    dLine +
-    ` L ${(pad + (values.length - 1) * step).toFixed(2)} ${(h - pad).toFixed(2)}` +
-    ` L ${pad.toFixed(2)} ${(h - pad).toFixed(2)} Z`;
+  // “Bolinha” no último ponto
+  const last = points[points.length - 1];
+  const lastY = clamp(last.y, padY, h - padY);
 
   return (
-    <svg width="100%" viewBox={`0 0 ${w} ${h}`} className="block">
-      <defs>
-        <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(124,58,237,0.35)" />
-          <stop offset="100%" stopColor="rgba(124,58,237,0.00)" />
-        </linearGradient>
-      </defs>
+    <div className={`w-full ${heightClass} overflow-hidden rounded-2xl`}>
+      <svg
+        className="w-full h-full"
+        viewBox={`0 0 ${w} ${h}`}
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="sparkArea" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="rgba(168, 85, 247, 0.35)" />
+            <stop offset="100%" stopColor="rgba(168, 85, 247, 0.00)" />
+          </linearGradient>
 
-      <path d={dArea} fill="url(#sparkFill)" />
-      <path d={dLine} fill="none" stroke="rgba(167,139,250,0.95)" strokeWidth="2" />
-    </svg>
+          <linearGradient id="sparkLine" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="rgba(168, 85, 247, 0.35)" />
+            <stop offset="100%" stopColor="rgba(168, 85, 247, 0.95)" />
+          </linearGradient>
+        </defs>
+
+        <path d={area} fill="url(#sparkArea)" />
+        <path
+          d={line}
+          fill="none"
+          stroke="url(#sparkLine)"
+          strokeWidth="10"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          opacity="0.95"
+        />
+
+        <circle cx={last.x} cy={lastY} r="12" fill="rgba(168, 85, 247, 0.95)" />
+      </svg>
+    </div>
   );
 }
