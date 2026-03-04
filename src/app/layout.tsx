@@ -5,15 +5,20 @@ import { usePathname } from "next/navigation";
 import Sidebar from "@/components/shell/Sidebar";
 import Topbar from "@/components/shell/Topbar";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import AlertInterceptor from "@/components/ui/AlertInterceptor";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAuthRoute = pathname?.startsWith("/login") || pathname?.startsWith("/auth");
+  const isAuthRoute =
+    pathname?.startsWith("/login") || pathname?.startsWith("/auth");
 
   return (
     <html lang="pt-BR" className="dark">
       <body>
         <ToastProvider>
+          {/* Intercepta TODOS os alerts do navegador */}
+          <AlertInterceptor />
+
           {isAuthRoute ? (
             <div className="min-h-screen">{children}</div>
           ) : (
@@ -25,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <Topbar />
                     <main className="panel p-5 md:p-6">{children}</main>
                     <footer className="text-xs text-zinc-500 px-2 pb-2">
-                      Organize.ia • Interface estilo dashboard premium - Powered by: Sabino F.
+                      Organize.ia • Interface estilo dashboard premium
                     </footer>
                   </div>
                 </div>
