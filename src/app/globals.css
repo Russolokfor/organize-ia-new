@@ -2,60 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== Base ===== */
-:root {
-  color-scheme: dark;
-}
-
+/* Base */
 html,
 body {
   height: 100%;
 }
 
 body {
-  min-height: 100vh;
-  color: #e5e7eb;
-  background-color: #06070b;
-
-  /* Fundo "fintech" fixo, não acaba quando rolar */
-  background-image:
-    radial-gradient(1200px 800px at 20% 0%, rgba(124, 58, 237, 0.18), transparent 55%),
-    radial-gradient(1200px 800px at 90% 10%, rgba(59, 130, 246, 0.14), transparent 50%),
-    radial-gradient(900px 700px at 40% 90%, rgba(16, 185, 129, 0.08), transparent 60%);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
+  overflow-x: hidden;
 }
 
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* iOS safe area */
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
 }
 
-/* Scrollbar discreta */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.18);
-  border-radius: 999px;
-  border: 3px solid rgba(0, 0, 0, 0);
-  background-clip: padding-box;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
+/* Evita “pulo” de 100vh no mobile (Safari/Chrome) */
+.min-h-screen {
+  min-height: 100svh;
 }
 
-/* Helpers */
+/* Fundo fixo e infinito */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(800px 400px at 20% 10%, rgba(139, 92, 246, 0.18), transparent 55%),
+    radial-gradient(700px 420px at 85% 30%, rgba(59, 130, 246, 0.14), transparent 55%),
+    radial-gradient(900px 520px at 50% 100%, rgba(139, 92, 246, 0.10), transparent 55%),
+    #05060b;
+}
+
+/* Tap target */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Evita zoom do iOS em input */
+input, select, textarea {
+  font-size: 16px;
+}
+
+/* Component helpers */
 @layer components {
   .panel {
-    @apply rounded-3xl border border-zinc-800/70 bg-zinc-900/20 shadow-sm;
+    @apply rounded-3xl border border-zinc-800/70 bg-zinc-950/25 shadow-sm backdrop-blur;
   }
-  .panel-soft {
-    @apply rounded-3xl border border-zinc-800/60 bg-zinc-950/25;
+
+  .btn {
+    @apply rounded-2xl px-4 py-2 font-medium transition border border-zinc-800/70 bg-zinc-950/35 hover:bg-zinc-950/45;
   }
-  .muted {
-    @apply text-zinc-400;
+
+  .btn-primary {
+    @apply border border-violet-500/30 bg-violet-500/15 hover:bg-violet-500/20 text-zinc-100;
+  }
+
+  .input {
+    @apply w-full rounded-2xl border border-zinc-800/70 bg-zinc-950/35 px-4 py-3 outline-none text-zinc-100 placeholder:text-zinc-600 focus:border-violet-500/40;
   }
 }
