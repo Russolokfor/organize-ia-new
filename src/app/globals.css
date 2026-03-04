@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base premium dark */
+/* ===== Base ===== */
 :root {
   color-scheme: dark;
 }
@@ -13,10 +13,18 @@ body {
 }
 
 body {
-  background: radial-gradient(1200px 800px at 20% 0%, rgba(124, 58, 237, 0.16), transparent 55%),
-              radial-gradient(1200px 800px at 90% 10%, rgba(59, 130, 246, 0.12), transparent 50%),
-              #06070b;
+  min-height: 100vh;
   color: #e5e7eb;
+  background-color: #06070b;
+
+  /* Fundo "fintech" fixo, não acaba quando rolar */
+  background-image:
+    radial-gradient(1200px 800px at 20% 0%, rgba(124, 58, 237, 0.18), transparent 55%),
+    radial-gradient(1200px 800px at 90% 10%, rgba(59, 130, 246, 0.14), transparent 50%),
+    radial-gradient(900px 700px at 40% 90%, rgba(16, 185, 129, 0.08), transparent 60%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
 }
 
 * {
