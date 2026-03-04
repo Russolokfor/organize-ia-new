@@ -22,9 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AlertInterceptor />
 
           {isAuthRoute ? (
-            // Auth pages: ocupa 100% e respeita safe areas
+            // Auth pages: ocupa 100% e respeita safe areas (uma única vez)
             <div
-              className="min-h-screen"
+              className="min-h-screen w-full"
               style={{
                 paddingTop: "var(--safe-top)",
                 paddingBottom: "var(--safe-bottom)",
@@ -33,13 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {children}
             </div>
           ) : (
-            <div
-              className="min-h-screen"
-              style={{
-                paddingTop: "var(--safe-top)",
-                paddingBottom: "var(--safe-bottom)",
-              }}
-            >
+            <div className="min-h-screen w-full">
               {/* Desktop */}
               <div className="hidden lg:block">
                 <div className="mx-auto max-w-[1400px] px-4 py-4">

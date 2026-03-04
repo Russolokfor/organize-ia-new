@@ -27,7 +27,7 @@ export default function MobileShell({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full">
       {/* Topbar */}
       <div className="sticky top-0 z-50 border-b border-zinc-800/60 bg-zinc-950/40 backdrop-blur">
         <div
@@ -57,12 +57,12 @@ export default function MobileShell({ children }: { children: React.ReactNode })
         </div>
       </div>
 
-      {/* Conteúdo */}
+      {/* Conteúdo (SEM panel externo — evita duplicação) */}
       <div
-        className="px-4 py-4"
+        className="px-4 py-4 w-full max-w-screen-sm mx-auto"
         style={{ paddingBottom: "calc(16px + var(--safe-bottom))" }}
       >
-        <main className="panel p-5">{children}</main>
+        <main className="w-full max-w-full overflow-x-hidden">{children}</main>
 
         <footer className="mt-3 text-[12px] text-muted2 px-1">
           Organize.ia • Interface premium
