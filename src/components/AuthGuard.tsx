@@ -1,34 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
+    let alive = true;
+
     async function check() {
       const { data } = await supabase.auth.getSession();
-      const hasSession = !!data.session;
+      const session = data.session;
 
-      if (!hasSession) {
+      if (!alive) return;
+
+      if (!session) {
+        toast({
+          title: "Acesso restrito",
+          description: "Você precisa estar logado para acessar essa página.",
+          variant: "warning",
+        });
+
         router.replace("/login");
-        return;
       }
-      setReady(true);
     }
-    check();
-  }, [router]);
 
-  if (!ready) {
-    return (
-      <div className="text-sm text-zinc-400">
-        Carregando...
-      </div>
-    );
-  }
+    check();
+
+    return () => {
+      alive = false;
+    };
+  }, [router, toast]);
 
   return <>{children}</>;
 }
