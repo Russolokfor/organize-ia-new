@@ -22,9 +22,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AlertInterceptor />
 
           {isAuthRoute ? (
-            <div className="min-h-screen">{children}</div>
+            // Auth pages: ocupa 100% e respeita safe areas
+            <div
+              className="min-h-screen"
+              style={{
+                paddingTop: "var(--safe-top)",
+                paddingBottom: "var(--safe-bottom)",
+              }}
+            >
+              {children}
+            </div>
           ) : (
-            <div className="min-h-screen">
+            <div
+              className="min-h-screen"
+              style={{
+                paddingTop: "var(--safe-top)",
+                paddingBottom: "var(--safe-bottom)",
+              }}
+            >
               {/* Desktop */}
               <div className="hidden lg:block">
                 <div className="mx-auto max-w-[1400px] px-4 py-4">
@@ -33,15 +48,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <div className="grid gap-4">
                       <Topbar />
                       <main className="panel p-5 md:p-6">{children}</main>
-                      <footer className="text-xs text-zinc-500 px-2 pb-2">
-                        Organize.ia • Interface estilo dashboard premium
-                      </footer>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Mobile / Tablet */}
+              {/* Mobile */}
               <div className="lg:hidden">
                 <MobileShell>{children}</MobileShell>
               </div>
