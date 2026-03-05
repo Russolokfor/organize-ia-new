@@ -7,12 +7,11 @@
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
 
-  /* Cores base (dark) */
   --bg: #05060b;
-  --text: #f4f4f5; /* zinc-100 */
-  --muted: #a1a1aa; /* zinc-400 */
-  --muted2: #71717a; /* zinc-500 */
-  --border: rgba(63, 63, 70, 0.65); /* zinc-700/65 */
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --muted2: #71717a;
+  --border: rgba(63, 63, 70, 0.65);
 }
 
 html,
@@ -22,20 +21,10 @@ body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
+
+  /* ✅ Definitivo: impede largura maior que viewport */
   max-width: 100vw;
-  overflow-x: hidden;
-}
-
-/* Base de fonte: maior e confortável */
-html {
-  font-size: 16px; /* desktop */
-}
-
-/* No celular, aumenta um pouco (fica mais “app”) */
-@media (max-width: 640px) {
-  html {
-    font-size: 17px;
-  }
+  overflow-x: clip; /* melhor que hidden para não criar “scroll invisível” */
 }
 
 body {
@@ -43,12 +32,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Corrige bug de altura no mobile (Safari/Chrome) */
+/* Fonte confortável */
+html {
+  font-size: 16px;
+}
+@media (max-width: 640px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+/* Corrige altura mobile */
 .min-h-screen {
   min-height: 100dvh;
 }
 
-/* Fundo fixo e infinito */
+/* Fundo fixo */
 .app-bg {
   position: fixed;
   inset: 0;
@@ -71,30 +70,47 @@ body {
     var(--bg);
 }
 
-/* Evita zoom do iOS e mantém legível */
+/* Evita zoom iOS e mantém legível */
 input,
 select,
 textarea {
   font-size: 16px;
 }
 
-/* Remove highlight feio no mobile */
 button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ========= Helpers ========= */
 @layer components {
-  /* Painel padrão do app */
+  /* ✅ Classe raiz definitiva contra overflow horizontal */
+  .layout-root {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: clip;
+    position: relative;
+  }
+
+  /* ✅ Container interno: garante que filhos flex/grid não “estourem” */
+  .layout-inner {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0; /* IMPORTANTÍSSIMO para flex/grid */
+    overflow-x: clip;
+  }
+
+  /* Painel padrão */
   .panel {
     @apply rounded-3xl border shadow-sm backdrop-blur;
     border-color: var(--border);
     background: rgba(9, 10, 18, 0.45);
     color: var(--text);
+
+    /* ✅ evita qualquer card “forçar” largura */
+    max-width: 100%;
+    min-width: 0;
   }
 
-  /* Textos padrão */
   .text-muted {
     color: var(--muted);
   }
@@ -102,11 +118,11 @@ a {
     color: var(--muted2);
   }
 
-  /* Botões */
   .btn {
     @apply rounded-2xl px-4 py-3 font-medium transition border;
     border-color: var(--border);
     background: rgba(9, 10, 18, 0.55);
+    max-width: 100%;
   }
 
   .btn:hover {
@@ -123,12 +139,15 @@ a {
     background: rgba(139, 92, 246, 0.22);
   }
 
-  /* Inputs */
   .input {
     @apply w-full rounded-2xl border px-4 py-3 outline-none;
     border-color: var(--border);
     background: rgba(9, 10, 18, 0.55);
     color: var(--text);
+
+    /* ✅ inputs nunca estouram */
+    max-width: 100%;
+    min-width: 0;
   }
 
   .input::placeholder {

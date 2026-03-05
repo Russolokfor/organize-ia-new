@@ -27,44 +27,48 @@ export default function MobileShell({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full layout-inner">
       {/* Topbar */}
-      <div className="sticky top-0 z-50 border-b border-zinc-800/60 bg-zinc-950/40 backdrop-blur">
+      <div className="sticky top-0 z-50 border-b border-zinc-800/60 bg-zinc-950/40 backdrop-blur layout-inner">
         <div
-          className="px-4 py-3 flex items-center justify-between gap-3"
+          className="px-4 py-3 flex items-center justify-between gap-3 layout-inner"
           style={{ paddingTop: "calc(12px + var(--safe-top))" }}
         >
           <button
             onClick={() => setOpen(true)}
-            className="h-12 w-12 rounded-2xl border border-zinc-800/70 bg-zinc-950/35 flex items-center justify-center"
+            className="h-12 w-12 rounded-2xl border border-zinc-800/70 bg-zinc-950/35 flex items-center justify-center shrink-0"
             aria-label="Abrir menu"
           >
             <span className="text-zinc-100 text-2xl leading-none">≡</span>
           </button>
 
-          <div className="flex-1 text-center">
+          {/* ✅ min-w-0 pra texto nunca estourar */}
+          <div className="flex-1 min-w-0 text-center">
             <div className="text-[11px] tracking-widest uppercase text-muted2">
               Organize
             </div>
-            <div className="text-base font-semibold text-zinc-100">
+            <div className="text-base font-semibold text-zinc-100 truncate">
               {activeLabel}
             </div>
           </div>
 
-          <div className="h-12 w-12 rounded-2xl border border-violet-500/25 bg-violet-500/10 flex items-center justify-center text-violet-200 font-semibold">
+          <div className="h-12 w-12 rounded-2xl border border-violet-500/25 bg-violet-500/10 flex items-center justify-center text-violet-200 font-semibold shrink-0">
             AI
           </div>
         </div>
       </div>
 
-      {/* Conteúdo (SEM panel externo — evita duplicação) */}
+      {/* Conteúdo */}
       <div
-        className="px-4 py-4 w-full max-w-screen-sm mx-auto"
+        className="px-4 py-4 w-full max-w-screen-sm mx-auto layout-inner"
         style={{ paddingBottom: "calc(16px + var(--safe-bottom))" }}
       >
-        <main className="w-full max-w-full overflow-x-hidden">{children}</main>
+        {/* ✅ clip/hidden aqui evita qualquer filho escapar */}
+        <main className="w-full max-w-full min-w-0 overflow-x-clip layout-inner">
+          {children}
+        </main>
 
-        <footer className="mt-3 text-[12px] text-muted2 px-1">
+        <footer className="mt-3 text-[12px] text-muted2 px-1 layout-inner">
           Organize.ia • Interface premium
         </footer>
       </div>
@@ -91,11 +95,11 @@ export default function MobileShell({ children }: { children: React.ReactNode })
           )}
         >
           <div
-            className="p-5"
+            className="p-5 layout-inner"
             style={{ paddingTop: "calc(18px + var(--safe-top))" }}
           >
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-center justify-between gap-3 layout-inner">
+              <div className="min-w-0">
                 <div className="text-[11px] text-muted2 uppercase tracking-widest">
                   Organize
                 </div>
@@ -107,14 +111,14 @@ export default function MobileShell({ children }: { children: React.ReactNode })
 
               <button
                 onClick={() => setOpen(false)}
-                className="h-12 w-12 rounded-2xl border border-zinc-800/70 bg-zinc-950/35 flex items-center justify-center text-zinc-100"
+                className="h-12 w-12 rounded-2xl border border-zinc-800/70 bg-zinc-950/35 flex items-center justify-center text-zinc-100 shrink-0"
                 aria-label="Fechar menu"
               >
                 ✕
               </button>
             </div>
 
-            <div className="mt-6 grid gap-2">
+            <div className="mt-6 grid gap-2 layout-inner">
               {NAV.map((item) => {
                 const active = pathname?.startsWith(item.href);
                 return (
@@ -125,7 +129,7 @@ export default function MobileShell({ children }: { children: React.ReactNode })
                       setOpen(false);
                     }}
                     className={cn(
-                      "w-full text-left px-4 py-4 rounded-2xl border transition text-base",
+                      "w-full text-left px-4 py-4 rounded-2xl border transition text-base layout-inner",
                       active
                         ? "border-violet-500/30 bg-violet-500/10 text-zinc-100"
                         : "border-zinc-800/70 bg-zinc-950/35 text-zinc-200 hover:bg-zinc-950/45"
@@ -137,7 +141,7 @@ export default function MobileShell({ children }: { children: React.ReactNode })
               })}
             </div>
 
-            <div className="mt-6 panel p-4">
+            <div className="mt-6 panel p-4 layout-inner">
               <div className="text-[12px] text-muted2">Dica de execução</div>
               <div className="mt-1 text-base text-zinc-100">
                 Mantenha 5–8 tarefas no foco do dia.
