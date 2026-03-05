@@ -2,16 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ========= Base + Tema ========= */
+/* =========================================
+   ORGANIZE.IA — Neon Dreamscape (Dark)
+   Palette:
+   - Neon Magenta: #EE0CF2
+   - Deep Purple:  #4F0259
+   - Deep Navy:    #010D26
+   - Steel Blue:   #204473
+   - Neon Lime:    #7FD925
+========================================= */
+
 :root {
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
 
-  --bg: #05060b;
-  --text: #f4f4f5;
-  --muted: #a1a1aa;
-  --muted2: #71717a;
-  --border: rgba(63, 63, 70, 0.65);
+  /* Base */
+  --bg: #010d26; /* deep navy */
+  --surface: rgba(1, 13, 38, 0.72);
+  --surface-2: rgba(79, 2, 89, 0.14); /* subtle purple layer */
+  --border: rgba(32, 68, 115, 0.45);  /* steel blue border */
+  --border-strong: rgba(238, 12, 242, 0.22);
+
+  /* Text */
+  --text: rgba(250, 250, 252, 0.94);
+  --muted: rgba(233, 233, 240, 0.62);
+  --muted2: rgba(233, 233, 240, 0.46);
+
+  /* Accents */
+  --primary: #ee0cf2;   /* magenta */
+  --primary-2: #4f0259; /* deep purple */
+  --info: #204473;      /* steel blue */
+  --success: #7fd925;   /* lime */
+
+  /* Glows */
+  --glow-primary: rgba(238, 12, 242, 0.22);
+  --glow-success: rgba(127, 217, 37, 0.18);
+  --shadow: 0 18px 55px rgba(0, 0, 0, 0.45);
 }
 
 html,
@@ -19,27 +45,22 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+
   background: var(--bg);
   color: var(--text);
 
-  /* ✅ Definitivo: impede largura maior que viewport */
   max-width: 100vw;
-  overflow-x: clip; /* melhor que hidden para não criar “scroll invisível” */
-}
+  overflow-x: clip;
 
-body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Fonte confortável */
-html {
+/* evita zoom iOS e melhora usabilidade */
+input,
+select,
+textarea {
   font-size: 16px;
-}
-@media (max-width: 640px) {
-  html {
-    font-size: 17px;
-  }
 }
 
 /* Corrige altura mobile */
@@ -47,43 +68,22 @@ html {
   min-height: 100dvh;
 }
 
-/* Fundo fixo */
+/* Fundo premium (neon controlado) */
 .app-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(
-      800px 420px at 18% 12%,
-      rgba(139, 92, 246, 0.18),
-      transparent 55%
-    ),
-    radial-gradient(
-      720px 420px at 85% 30%,
-      rgba(59, 130, 246, 0.14),
-      transparent 55%
-    ),
-    radial-gradient(
-      900px 520px at 50% 100%,
-      rgba(139, 92, 246, 0.1),
-      transparent 55%
-    ),
+
+  background:
+    radial-gradient(900px 480px at 18% 10%, rgba(238, 12, 242, 0.20), transparent 55%),
+    radial-gradient(820px 520px at 88% 22%, rgba(127, 217, 37, 0.11), transparent 58%),
+    radial-gradient(1100px 620px at 50% 115%, rgba(79, 2, 89, 0.16), transparent 60%),
+    radial-gradient(900px 520px at 50% 0%, rgba(32, 68, 115, 0.14), transparent 58%),
     var(--bg);
 }
 
-/* Evita zoom iOS e mantém legível */
-input,
-select,
-textarea {
-  font-size: 16px;
-}
-
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
-
 @layer components {
-  /* ✅ Classe raiz definitiva contra overflow horizontal */
+  /* Cinto de segurança contra overflow */
   .layout-root {
     width: 100%;
     max-width: 100vw;
@@ -91,70 +91,91 @@ a {
     position: relative;
   }
 
-  /* ✅ Container interno: garante que filhos flex/grid não “estourem” */
   .layout-inner {
     width: 100%;
     max-width: 100%;
-    min-width: 0; /* IMPORTANTÍSSIMO para flex/grid */
+    min-width: 0;
     overflow-x: clip;
   }
 
-  /* Painel padrão */
+  /* Painel */
   .panel {
-    @apply rounded-3xl border shadow-sm backdrop-blur;
-    border-color: var(--border);
-    background: rgba(9, 10, 18, 0.45);
-    color: var(--text);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.02),
+      rgba(255, 255, 255, 0.00)
+    ), var(--surface);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(16px);
 
-    /* ✅ evita qualquer card “forçar” largura */
     max-width: 100%;
     min-width: 0;
   }
 
-  .text-muted {
-    color: var(--muted);
-  }
-  .text-muted2 {
-    color: var(--muted2);
+  .panel-soft {
+    border-radius: 18px;
+    border: 1px solid rgba(32, 68, 115, 0.32);
+    background: rgba(1, 13, 38, 0.55);
+    backdrop-filter: blur(14px);
+    max-width: 100%;
+    min-width: 0;
   }
 
+  .text-muted { color: var(--muted); }
+  .text-muted2 { color: var(--muted2); }
+
+  /* Botões */
   .btn {
-    @apply rounded-2xl px-4 py-3 font-medium transition border;
-    border-color: var(--border);
-    background: rgba(9, 10, 18, 0.55);
+    border-radius: 18px;
+    border: 1px solid rgba(32, 68, 115, 0.5);
+    background: rgba(1, 13, 38, 0.55);
+    color: var(--text);
+    transition: 160ms ease;
+
     max-width: 100%;
   }
 
   .btn:hover {
-    background: rgba(9, 10, 18, 0.7);
+    background: rgba(1, 13, 38, 0.70);
   }
 
   .btn-primary {
-    @apply text-white border;
-    border-color: rgba(139, 92, 246, 0.35);
-    background: rgba(139, 92, 246, 0.16);
+    border: 1px solid rgba(238, 12, 242, 0.35);
+    background: rgba(238, 12, 242, 0.14);
+    box-shadow: 0 0 0 1px rgba(238, 12, 242, 0.08), 0 18px 40px rgba(238, 12, 242, 0.10);
   }
 
   .btn-primary:hover {
-    background: rgba(139, 92, 246, 0.22);
+    background: rgba(238, 12, 242, 0.18);
   }
 
-  .input {
-    @apply w-full rounded-2xl border px-4 py-3 outline-none;
-    border-color: var(--border);
-    background: rgba(9, 10, 18, 0.55);
-    color: var(--text);
-
-    /* ✅ inputs nunca estouram */
-    max-width: 100%;
-    min-width: 0;
+  .btn-success {
+    border: 1px solid rgba(127, 217, 37, 0.38);
+    background: rgba(127, 217, 37, 0.12);
+    box-shadow: 0 0 0 1px rgba(127, 217, 37, 0.08), 0 18px 40px rgba(127, 217, 37, 0.08);
   }
 
-  .input::placeholder {
-    color: rgba(113, 113, 122, 0.9);
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 10px;
+    border-radius: 999px;
+
+    border: 1px solid rgba(32, 68, 115, 0.5);
+    background: rgba(1, 13, 38, 0.55);
+
+    color: var(--muted);
+    font-size: 12px;
   }
 
-  .input:focus {
-    border-color: rgba(139, 92, 246, 0.45);
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    box-shadow: 0 0 0 3px rgba(238, 12, 242, 0.25);
   }
 }

@@ -1,7 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  IconChart,
+  IconCheck,
+  IconHome,
+  IconInbox,
+  IconMenu,
+  IconPlus,
+} from "../ui/Icons";
 
 type NavItem = { label: string; href: string };
 
@@ -26,34 +34,62 @@ export default function MobileShell({ children }: { children: React.ReactNode })
     return found?.label ?? "Organize.ia";
   }, [pathname]);
 
+  const dockActive = (href: string) => (pathname ? pathname.startsWith(href) : false);
+
   return (
     <div className="min-h-screen w-full layout-inner">
-      {/* Topbar */}
-      <div className="sticky top-0 z-50 border-b border-zinc-800/60 bg-zinc-950/40 backdrop-blur layout-inner">
+      {/* Topbar (inline — sem MobileHeader separado pra não dar erro) */}
+      <div className="sticky top-0 z-50 layout-inner">
         <div
-          className="px-4 py-3 flex items-center justify-between gap-3 layout-inner"
-          style={{ paddingTop: "calc(12px + var(--safe-top))" }}
+          className="border-b layout-inner"
+          style={{
+            borderColor: "rgba(32, 68, 115, 0.35)",
+            background:
+              "linear-gradient(180deg, rgba(1,13,38,0.72), rgba(1,13,38,0.35))",
+            backdropFilter: "blur(18px)",
+            paddingTop: "var(--safe-top)",
+          }}
         >
-          <button
-            onClick={() => setOpen(true)}
-            className="h-12 w-12 rounded-2xl border border-zinc-800/70 bg-zinc-950/35 flex items-center justify-center shrink-0"
-            aria-label="Abrir menu"
-          >
-            <span className="text-zinc-100 text-2xl leading-none">≡</span>
-          </button>
+          <div className="px-4 py-3 flex items-center justify-between gap-3 layout-inner">
+            <button
+              onClick={() => setOpen(true)}
+              className={cn(
+                "focus-ring",
+                "h-12 w-12 rounded-2xl border",
+                "flex items-center justify-center shrink-0"
+              )}
+              style={{
+                borderColor: "rgba(32, 68, 115, 0.5)",
+                background: "rgba(1,13,38,0.55)",
+                color: "rgba(250,250,252,0.92)",
+              }}
+              aria-label="Abrir menu"
+            >
+              <IconMenu size={22} />
+            </button>
 
-          {/* ✅ min-w-0 pra texto nunca estourar */}
-          <div className="flex-1 min-w-0 text-center">
-            <div className="text-[11px] tracking-widest uppercase text-muted2">
-              Organize
+            <div className="flex-1 min-w-0 text-center">
+              <div className="text-[11px] tracking-[0.28em] uppercase text-muted2">
+                ORGANIZE
+              </div>
+              <div className="text-[16px] font-semibold text-[var(--text)] truncate">
+                {activeLabel}
+              </div>
             </div>
-            <div className="text-base font-semibold text-zinc-100 truncate">
-              {activeLabel}
-            </div>
-          </div>
 
-          <div className="h-12 w-12 rounded-2xl border border-violet-500/25 bg-violet-500/10 flex items-center justify-center text-violet-200 font-semibold shrink-0">
-            AI
+            <div
+              className={cn(
+                "h-12 px-4 rounded-2xl border",
+                "flex items-center justify-center font-semibold shrink-0"
+              )}
+              style={{
+                borderColor: "rgba(238,12,242,0.35)",
+                background: "rgba(238,12,242,0.10)",
+                color: "rgba(250,250,252,0.95)",
+              }}
+            >
+              AI
+            </div>
           </div>
         </div>
       </div>
@@ -61,9 +97,8 @@ export default function MobileShell({ children }: { children: React.ReactNode })
       {/* Conteúdo */}
       <div
         className="px-4 py-4 w-full max-w-screen-sm mx-auto layout-inner"
-        style={{ paddingBottom: "calc(16px + var(--safe-bottom))" }}
+        style={{ paddingBottom: "calc(120px + var(--safe-bottom))" }}
       >
-        {/* ✅ clip/hidden aqui evita qualquer filho escapar */}
         <main className="w-full max-w-full min-w-0 overflow-x-clip layout-inner">
           {children}
         </main>
@@ -71,6 +106,72 @@ export default function MobileShell({ children }: { children: React.ReactNode })
         <footer className="mt-3 text-[12px] text-muted2 px-1 layout-inner">
           Organize.ia • Interface premium
         </footer>
+      </div>
+
+      {/* Dock flutuante (único) */}
+      <div
+        className={cn(
+          "fixed z-50 left-1/2 -translate-x-1/2",
+          "bottom-[calc(14px+var(--safe-bottom))]",
+          "w-[92%] max-w-[420px]"
+        )}
+      >
+        <div
+          className={cn("panel", "px-4 py-3 flex items-center justify-between gap-3")}
+          style={{
+            borderColor: "rgba(32, 68, 115, 0.55)",
+            boxShadow:
+              "0 18px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(238,12,242,0.06)",
+          }}
+        >
+          <DockBtn
+            label="Hoje"
+            active={dockActive("/dashboard")}
+            onClick={() => router.push("/dashboard")}
+            icon={<IconHome size={20} />}
+          />
+          <DockBtn
+            label="Rotina"
+            active={dockActive("/routine")}
+            onClick={() => router.push("/routine")}
+            icon={<IconCheck size={20} />}
+          />
+
+          {/* FAB */}
+          <button
+            type="button"
+            onClick={() => router.push("/organization")}
+            className={cn(
+              "focus-ring",
+              "h-12 w-12 rounded-2xl border",
+              "flex items-center justify-center"
+            )}
+            style={{
+              borderColor: "rgba(238, 12, 242, 0.42)",
+              background:
+                "linear-gradient(180deg, rgba(238,12,242,0.22), rgba(79,2,89,0.18))",
+              boxShadow:
+                "0 16px 40px rgba(238,12,242,0.14), 0 0 0 1px rgba(238,12,242,0.10)",
+              color: "rgba(250,250,252,0.95)",
+            }}
+            aria-label="Criar nova tarefa"
+          >
+            <IconPlus size={22} />
+          </button>
+
+          <DockBtn
+            label="Inbox"
+            active={dockActive("/inbox")}
+            onClick={() => router.push("/inbox")}
+            icon={<IconInbox size={20} />}
+          />
+          <DockBtn
+            label="Stats"
+            active={dockActive("/performance")}
+            onClick={() => router.push("/performance")}
+            icon={<IconChart size={20} />}
+          />
+        </div>
       </div>
 
       {/* Drawer */}
@@ -90,9 +191,13 @@ export default function MobileShell({ children }: { children: React.ReactNode })
 
         <div
           className={cn(
-            "absolute left-0 top-0 h-full w-[86%] max-w-[360px] border-r border-zinc-800/70 bg-zinc-950/90 backdrop-blur transition-transform",
+            "absolute left-0 top-0 h-full w-[86%] max-w-[360px] border-r backdrop-blur transition-transform",
             open ? "translate-x-0" : "-translate-x-full"
           )}
+          style={{
+            borderColor: "rgba(32, 68, 115, 0.45)",
+            background: "rgba(1,13,38,0.92)",
+          }}
         >
           <div
             className="p-5 layout-inner"
@@ -100,18 +205,27 @@ export default function MobileShell({ children }: { children: React.ReactNode })
           >
             <div className="flex items-center justify-between gap-3 layout-inner">
               <div className="min-w-0">
-                <div className="text-[11px] text-muted2 uppercase tracking-widest">
-                  Organize
+                <div className="text-[11px] text-muted2 uppercase tracking-[0.28em]">
+                  ORGANIZE
                 </div>
                 <div className="text-xl font-semibold tracking-tight">
-                  <span className="text-zinc-100">Organize</span>
-                  <span className="text-violet-300">.ia</span>
+                  <span className="text-[var(--text)]">Organize</span>
+                  <span style={{ color: "rgba(238,12,242,0.85)" }}>.ia</span>
                 </div>
               </div>
 
               <button
                 onClick={() => setOpen(false)}
-                className="h-12 w-12 rounded-2xl border border-zinc-800/70 bg-zinc-950/35 flex items-center justify-center text-zinc-100 shrink-0"
+                className={cn(
+                  "focus-ring",
+                  "h-12 w-12 rounded-2xl border",
+                  "flex items-center justify-center shrink-0"
+                )}
+                style={{
+                  borderColor: "rgba(32, 68, 115, 0.5)",
+                  background: "rgba(1,13,38,0.55)",
+                  color: "rgba(250,250,252,0.92)",
+                }}
                 aria-label="Fechar menu"
               >
                 ✕
@@ -129,11 +243,20 @@ export default function MobileShell({ children }: { children: React.ReactNode })
                       setOpen(false);
                     }}
                     className={cn(
-                      "w-full text-left px-4 py-4 rounded-2xl border transition text-base layout-inner",
-                      active
-                        ? "border-violet-500/30 bg-violet-500/10 text-zinc-100"
-                        : "border-zinc-800/70 bg-zinc-950/35 text-zinc-200 hover:bg-zinc-950/45"
+                      "focus-ring",
+                      "w-full text-left px-4 py-4 rounded-2xl border transition text-base layout-inner"
                     )}
+                    style={{
+                      borderColor: active
+                        ? "rgba(238,12,242,0.30)"
+                        : "rgba(32, 68, 115, 0.45)",
+                      background: active
+                        ? "rgba(238,12,242,0.10)"
+                        : "rgba(1,13,38,0.55)",
+                      color: active
+                        ? "rgba(250,250,252,0.94)"
+                        : "rgba(233,233,240,0.82)",
+                    }}
                   >
                     {item.label}
                   </button>
@@ -143,7 +266,7 @@ export default function MobileShell({ children }: { children: React.ReactNode })
 
             <div className="mt-6 panel p-4 layout-inner">
               <div className="text-[12px] text-muted2">Dica de execução</div>
-              <div className="mt-1 text-base text-zinc-100">
+              <div className="mt-1 text-base text-[var(--text)]">
                 Mantenha 5–8 tarefas no foco do dia.
               </div>
             </div>
@@ -151,5 +274,36 @@ export default function MobileShell({ children }: { children: React.ReactNode })
         </div>
       </div>
     </div>
+  );
+}
+
+function DockBtn({
+  label,
+  icon,
+  active,
+  onClick,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  active?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "focus-ring",
+        "flex flex-col items-center justify-center gap-1",
+        "px-2 py-1 rounded-xl",
+        "min-w-[64px]"
+      )}
+      style={{
+        color: active ? "rgba(238,12,242,0.95)" : "rgba(233,233,240,0.62)",
+      }}
+    >
+      {icon}
+      <span className="text-[11px] tracking-wide">{label}</span>
+    </button>
   );
 }

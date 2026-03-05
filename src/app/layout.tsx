@@ -4,17 +4,20 @@ import "./globals.css";
 import React from "react";
 import { usePathname } from "next/navigation";
 
-import MobileShell from "../components/shell/MobileShell";
-import Sidebar from "../components/shell/Sidebar";
-import Topbar from "../components/shell/Topbar";
+import MobileShell from "@/components/shell/MobileShell";
+import Sidebar from "@/components/shell/Sidebar";
+import Topbar from "@/components/shell/Topbar";
 
-import { ToastProvider } from "../components/ui/ToastProvider";
-import AlertInterceptor from "../components/ui/AlertInterceptor";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import AlertInterceptor from "@/components/ui/AlertInterceptor";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
   const isAuthRoute =
-    pathname?.startsWith("/login") || pathname?.startsWith("/auth");
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/auth") ||
+    pathname?.startsWith("/api/auth");
 
   return (
     <html lang="pt-BR" className="dark">
