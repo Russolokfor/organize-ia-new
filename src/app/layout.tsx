@@ -1,15 +1,23 @@
 "use client";
 
 import "./globals.css";
+import React from "react";
 import { usePathname } from "next/navigation";
-import Sidebar from "@/components/shell/Sidebar";
-import Topbar from "@/components/shell/Topbar";
-import { ToastProvider } from "@/components/ui/ToastProvider";
-import AlertInterceptor from "@/components/ui/AlertInterceptor";
-import MobileShell from "@/components/shell/MobileShell";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import MobileShell from "../components/shell/MobileShell";
+import Sidebar from "../components/shell/Sidebar";
+import Topbar from "../components/shell/Topbar";
+
+import { ToastProvider } from "../components/ui/ToastProvider";
+import AlertInterceptor from "../components/ui/AlertInterceptor";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
+
   const isAuthRoute =
     pathname?.startsWith("/login") || pathname?.startsWith("/auth");
 
@@ -22,7 +30,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AlertInterceptor />
 
           {isAuthRoute ? (
-            // Auth pages: ocupa 100% e respeita safe areas (uma única vez)
             <div
               className="min-h-screen w-full"
               style={{
@@ -39,8 +46,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="mx-auto max-w-[1400px] px-4 py-4">
                   <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
                     <Sidebar />
+
                     <div className="grid gap-4">
                       <Topbar />
+
                       <main className="panel p-5 md:p-6">{children}</main>
                     </div>
                   </div>
