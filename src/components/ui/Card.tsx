@@ -7,10 +7,10 @@ function cn(...classes: Array<string | false | undefined | null>) {
 }
 
 /**
- * Card base premium e 100% mobile-safe:
- * - min-w-0 para não estourar em flex/grid
- * - headers responsivos com wrap
- * - paddings ajustados para mobile
+ * Card base premium e 100% mobile-safe.
+ * Compatível com:
+ * - import Card from "@/components/ui/Card" (default)
+ * - import { Card } from "@/components/ui/Card" (named)
  */
 
 export function Card({
@@ -61,7 +61,6 @@ export function CardHeaderRow({
     <div
       className={cn(
         "w-full max-w-full min-w-0",
-        // ✅ no mobile: empilha, no desktop: lado a lado
         "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
         className
       )}
@@ -69,13 +68,7 @@ export function CardHeaderRow({
       <div className="min-w-0">{left}</div>
 
       {right ? (
-        <div
-          className={cn(
-            "min-w-0",
-            // ✅ ações no mobile: quebram linha e podem virar full width
-            "flex flex-wrap gap-2 sm:justify-end"
-          )}
-        >
+        <div className={cn("min-w-0", "flex flex-wrap gap-2 sm:justify-end")}>
           {right}
         </div>
       ) : null}
@@ -112,7 +105,6 @@ export function CardHeadline({
   return (
     <div
       className={cn(
-        // ✅ menor no mobile e cresce no desktop
         "mt-1 text-2xl sm:text-3xl font-semibold text-zinc-100",
         "leading-tight",
         className
@@ -157,7 +149,6 @@ export function CardContent({
   );
 }
 
-/** Botão de ação de header (padrão mobile-friendly) */
 export function CardActionButton({
   className,
   children,
@@ -169,8 +160,7 @@ export function CardActionButton({
   onClick?: () => void;
   variant?: "default" | "primary";
 }) {
-  const base =
-    "rounded-2xl border px-4 py-3 text-base transition min-w-0";
+  const base = "rounded-2xl border px-4 py-3 text-base transition min-w-0";
   const look =
     variant === "primary"
       ? "border-violet-500/30 bg-violet-500/12 text-zinc-100 hover:bg-violet-500/18"
@@ -179,16 +169,13 @@ export function CardActionButton({
   return (
     <button
       onClick={onClick}
-      className={cn(
-        base,
-        look,
-        // ✅ no mobile: botão mais “tocável” e pode ocupar a largura disponível
-        "w-full sm:w-auto",
-        className
-      )}
+      className={cn(base, look, "w-full sm:w-auto", className)}
       type="button"
     >
       {children}
     </button>
   );
 }
+
+/** ✅ Compatibilidade total com imports antigos */
+export default Card;
