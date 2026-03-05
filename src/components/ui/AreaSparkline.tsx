@@ -4,14 +4,25 @@ import React, { useMemo } from "react";
 
 type Point = { x: string; y: number };
 
+/**
+ * Compatível com:
+ * - <AreaSparkline values={[...]} />
+ * - <AreaSparkline data={[{x,y}]} />
+ * - <AreaSparkline values={[...]} heightClass="h-48 sm:h-56 lg:h-64" />
+ * - (opcional) heightMobile/heightDesktop para controle fino
+ */
 type Props =
   | {
       values: number[];
+      data?: never;
+      heightClass?: string;
       heightMobile?: number;
       heightDesktop?: number;
     }
   | {
       data: Point[];
+      values?: never;
+      heightClass?: string;
       heightMobile?: number;
       heightDesktop?: number;
     };
@@ -20,24 +31,17 @@ function cn(...classes: Array<string | false | undefined | null>) {
   return classes.filter(Boolean).join(" ");
 }
 
-/**
- * Sparkline em SVG puro (sem recharts).
- * Compatível com:
- * - <AreaSparkline values={number[]} />
- * - <AreaSparkline data={Point[]} />
- */
 export default function AreaSparkline(props: Props) {
+  // alturas padrão caso não use heightClass
   const heightMobile = props.heightMobile ?? 180;
   const heightDesktop = props.heightDesktop ?? 240;
 
   const points = useMemo<Point[]>(() => {
-    // ✅ Discriminante definitivo (não retorna undefined)
     if ("values" in props) {
       const vals = props.values?.length ? props.values : [0, 0, 0, 0];
       return vals.map((y, i) => ({ x: String(i + 1), y: Number(y) || 0 }));
     }
 
-    // props.data sempre existe nesse ramo
     const d = props.data?.length ? props.data : [{ x: "1", y: 0 }];
     return d.map((p, i) => ({
       x: p.x ?? String(i + 1),
@@ -77,14 +81,24 @@ export default function AreaSparkline(props: Props) {
     return { path: line, areaPath: area };
   }, [points]);
 
+  // ✅ Se heightClass foi passado, respeita exatamente as classes antigas do projeto
+  if (props.heightClass) {
+    return (
+      <div className="w-full max-w-full min-w-0 overflow-x-clip">
+        <div className={cn("w-full max-w-full min-w-0", props.heightClass)}>
+          <SparklineSvg path={path} areaPath={areaPath} />
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Caso contrário usa alturas responsivas por breakpoint (modo novo)
   return (
     <div className="w-full max-w-full min-w-0 overflow-x-clip">
-      {/* Mobile */}
       <div className="block sm:hidden" style={{ height: heightMobile }}>
         <SparklineSvg path={path} areaPath={areaPath} />
       </div>
 
-      {/* Desktop */}
       <div className="hidden sm:block" style={{ height: heightDesktop }}>
         <SparklineSvg path={path} areaPath={areaPath} />
       </div>
@@ -102,7 +116,7 @@ function SparklineSvg({
   return (
     <svg
       viewBox="0 0 1000 360"
-      className={cn("w-full h-full")}
+      className="w-full h-full"
       preserveAspectRatio="none"
     >
       <defs>
@@ -120,10 +134,8 @@ function SparklineSvg({
         </filter>
       </defs>
 
-      {/* Área */}
       <path d={areaPath} fill="url(#sparkFill)" />
 
-      {/* Linha */}
       <path
         d={path}
         fill="none"
