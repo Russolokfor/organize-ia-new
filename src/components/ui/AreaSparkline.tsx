@@ -1,78 +1,50 @@
 "use client";
 
 import React from "react";
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
-type Point = { x: number; y: number };
-
-function clamp(n: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, n));
-}
+type Point = { x: string; y: number };
 
 export default function AreaSparkline({
-  values,
-  heightClass = "h-44 sm:h-56",
+  data,
+  heightMobile = 180,
+  heightDesktop = 240,
 }: {
-  values: number[];
-  heightClass?: string;
+  data: Point[];
+  heightMobile?: number;
+  heightDesktop?: number;
 }) {
-  const w = 1000;
-  const h = 260;
-  const padX = 24;
-  const padY = 18;
-
-  const safe = values?.length ? values : [0, 0, 0, 0, 0];
-
-  const minV = Math.min(...safe);
-  const maxV = Math.max(...safe);
-  const range = maxV - minV || 1;
-
-  const points: Point[] = safe.map((v, i) => {
-    const t = safe.length === 1 ? 0 : i / (safe.length - 1);
-    const x = padX + t * (w - padX * 2);
-    const yn = (v - minV) / range;
-    const y = padY + (1 - yn) * (h - padY * 2);
-    return { x, y };
-  });
-
-  const line = `M ${points.map((p) => `${p.x} ${p.y}`).join(" L ")}`;
-  const area = `${line} L ${w - padX} ${h - padY} L ${padX} ${h - padY} Z`;
-
-  // “Bolinha” no último ponto
-  const last = points[points.length - 1];
-  const lastY = clamp(last.y, padY, h - padY);
-
   return (
-    <div className={`w-full ${heightClass} overflow-hidden rounded-2xl`}>
-      <svg
-        className="w-full h-full"
-        viewBox={`0 0 ${w} ${h}`}
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient id="sparkArea" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="rgba(168, 85, 247, 0.35)" />
-            <stop offset="100%" stopColor="rgba(168, 85, 247, 0.00)" />
-          </linearGradient>
+    <div className="w-full max-w-full min-w-0 overflow-x-clip">
+      {/* ✅ altura menor no mobile */}
+      <div className="block sm:hidden" style={{ height: heightMobile }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 6, right: 10, left: -18, bottom: 0 }}>
+            <XAxis dataKey="x" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <Tooltip />
+            <Area type="monotone" dataKey="y" strokeWidth={3} fillOpacity={0.15} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
 
-          <linearGradient id="sparkLine" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stopColor="rgba(168, 85, 247, 0.35)" />
-            <stop offset="100%" stopColor="rgba(168, 85, 247, 0.95)" />
-          </linearGradient>
-        </defs>
-
-        <path d={area} fill="url(#sparkArea)" />
-        <path
-          d={line}
-          fill="none"
-          stroke="url(#sparkLine)"
-          strokeWidth="10"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          opacity="0.95"
-        />
-
-        <circle cx={last.x} cy={lastY} r="12" fill="rgba(168, 85, 247, 0.95)" />
-      </svg>
+      <div className="hidden sm:block" style={{ height: heightDesktop }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
+            <XAxis dataKey="x" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+            <Tooltip />
+            <Area type="monotone" dataKey="y" strokeWidth={3} fillOpacity={0.15} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
